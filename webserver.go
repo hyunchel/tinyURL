@@ -32,27 +32,33 @@ func lookupForUrl(shortenedUrl string) string {
 
 func CreateAndRunServer() {
 
-	// HOME
-	var shortenRegex = regexp.MustCompile(`\/shorten\/`)
-	var redirectRegex = regexp.MustCompile(`\/redirect\/`)
+	var shortenRegex = regexp.MustCompile(`\/shorten`)
+	var redirectRegex = regexp.MustCompile(`\/redirect`)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case shortenRegex.MatchString(r.URL.Path):
-			urlPath := shortenRegex.Split(r.URL.Path, 2)
-			shortenedUrl := shortenUrl(urlPath[1])
+			r.ParseForm()
 			var message string
-			if shortenedUrl == "" {
+			if longUrl := r.Form["url"]; longUrl != nil {
+				if shortenedUrl := shortenUrl(longUrl[0]); shortenedUrl != "" {
+					message = `
+						Your shortened URL:
+						%v
+					`
+					fmt.Fprintf(w, message, shortenedUrl)
+				} else {
+					message = `
+						Sorry, failed to shorten %q
+					`
+					http.Error(w, fmt.Sprintf(message, longUrl), 400)
+				}
+			} else {
 				message = `
-					Sorry, failed to shorten %q
+					Sorry, "url" parameter is missing.
 				`
-				fmt.Fprintf(w, message, urlPath[1])
+				http.Error(w, message, 400)
 			}
-			message = `
-				Your shortened URL:
-				%v
-			`
-			fmt.Fprintf(w, message, shortenedUrl)
 		case redirectRegex.MatchString(r.URL.Path):
 			urlPath := redirectRegex.Split(r.URL.Path, 2)
 			originalUrl := lookupForUrl(urlPath[1])
