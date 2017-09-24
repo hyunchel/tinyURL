@@ -1,4 +1,4 @@
-package tinyUrl
+package tinyURL
 
 import (
 	"log"
@@ -21,12 +21,19 @@ func HashIn(text string) string {
 		// Hash collision.
 		log.Fatal("Hash collision occured!")
 	}
-	hashMapper[encodedString] = text
+
+	if err := SaveURL(encodedString, text); err != nil {
+		hashMapper[encodedString] = text
+	}
 	return encodedString
 }
 
 func HashOut(hashedText string) string {
-	url := hashMapper[hashedText]
+	url, err := GetURL(hashedText)
+	if err != nil {
+		log.Printf("Failed to get the original value from %q\n", hashedText)
+		url = hashMapper[hashedText]
+	}
 	return url
 }
 

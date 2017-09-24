@@ -1,4 +1,4 @@
-package tinyUrl
+package tinyURL
 
 import "testing"
 
