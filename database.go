@@ -30,7 +30,7 @@ func SaveURL(shortURL string, longURL string) error {
 	if err != nil {
 		return err
 	}
-	value, err := conn.Do("SET", shortURL, longURL)
+	value, err := redis.Bool(conn.Do("SET", shortURL, longURL))
 	if err != nil || value != true{
 		errorMessage := fmt.Sprintf("Failed to  set %q as %q to the database.", shortURL, longURL)
 		log.Print(errorMessage)
@@ -45,11 +45,11 @@ func GetURL(shortURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	value, err := conn.Do("GET", shortURL)
+	value, err := redis.String(conn.Do("GET", shortURL))
 	if err != nil {
 		errorMessage := fmt.Sprintf("Failed to get %q from the database.", shortURL)
 		log.Printf(errorMessage)
 		return "", errors.New(errorMessage)
 	}
-	return fmt.Sprint(value), nil
+	return value, nil
 }

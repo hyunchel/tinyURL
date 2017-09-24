@@ -10,7 +10,6 @@ import (
 
 func shortenUrl(originalUrl string) string {
 	url := HashIn(originalUrl)
-	log.Printf("Shortened %q to %q", originalUrl, url)
 	if len(url) == 0 {
 		// Throw an Error here.
 		log.Printf("Unable to hash %q", originalUrl)
@@ -33,7 +32,7 @@ func lookupForUrl(shortenedUrl string) string {
 func CreateAndRunServer() {
 
 	var shortenRegex = regexp.MustCompile(`\/shorten`)
-	var redirectRegex = regexp.MustCompile(`\/redirect`)
+	var redirectRegex = regexp.MustCompile(`\/redirect\/`)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch {
